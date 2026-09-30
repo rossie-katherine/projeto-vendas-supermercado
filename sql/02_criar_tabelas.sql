@@ -63,3 +63,21 @@ CREATE TABLE IF NOT EXISTS vendas_tratadas (
     -- Avaliação do cliente: só aceita notas de 0 a 10
     "Avaliação"       NUMERIC(4,2)   CHECK ("Avaliação" BETWEEN 0 AND 10)
 );
+
+
+-- ============================================================
+-- CARGA DA RAW (Fase 1)
+-- Os dados foram importados pelo pgAdmin:
+--   botão direito em raw_vendas > Import/Export Data
+--   Import, formato csv, Header ligado, delimitador ","
+--   arquivo: data/raw/SuperMarket Analysis.csv
+--
+-- Alternativa pelo psql (rodar na pasta do projeto, conectado
+-- ao banco vendas_supermercado). Fica comentado porque \copy
+-- é comando do psql, não SQL comum:
+--
+-- \copy raw_vendas FROM 'data/raw/SuperMarket Analysis.csv' WITH (FORMAT csv, HEADER true, DELIMITER ',')
+--
+-- Conferência: deve retornar 1000 linhas
+-- SELECT COUNT(*) FROM raw_vendas;
+-- ============================================================
