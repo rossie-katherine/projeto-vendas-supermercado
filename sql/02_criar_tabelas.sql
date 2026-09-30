@@ -81,3 +81,8 @@ CREATE TABLE IF NOT EXISTS vendas_tratadas (
 -- Conferência: deve retornar 1000 linhas
 -- SELECT COUNT(*) FROM raw_vendas;
 -- ============================================================
+
+
+-- Correção após a importação: o cabeçalho do CSV entrou como linha de dados
+-- (opção Header desligada). Removida a linha para a Raw ficar com as 1000 vendas.
+-- DELETE FROM raw_vendas WHERE branch = 'Branch';
