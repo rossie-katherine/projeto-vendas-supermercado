@@ -108,6 +108,115 @@ def pergunta_4(df):
     return media
 
 
+# ---------- PERGUNTA 5: FORMA DE PAGAMENTO MAIS USADA ----------
+def pergunta_5(df):
+    print("\n=== PERGUNTA 5: Qual a forma de pagamento mais usada? ===")
+    # HIPÓTESE (troque por uma frase sua): o cartão de crédito
+    # é a forma de pagamento mais usada.
+    pagamentos = df["forma_pagamento"].value_counts()
+    print(pagamentos)
+
+    grafico_barras(pagamentos, "Vendas por forma de pagamento",
+                   "Forma de pagamento", "Número de vendas",
+                   "p5_forma_pagamento.png")
+    return pagamentos
+
+
+# ---------- PERGUNTA 6: VALOR MÉDIO DAS VENDAS ----------
+def pergunta_6(df):
+    print("\n=== PERGUNTA 6: Qual o valor médio das vendas? ===")
+    # HIPÓTESE (troque por uma frase sua): a média fica acima da mediana,
+    # porque poucas vendas muito grandes puxam a média para cima.
+    media = df["valor_total"].mean()
+    mediana = df["valor_total"].median()
+    print(f"Valor médio: {media:.2f}")
+    print(f"Mediana: {mediana:.2f}")
+    print(df["valor_total"].describe().round(2))
+
+    # Histograma: mostra como os valores das vendas se distribuem
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.hist(df["valor_total"], bins=20, color="steelblue", edgecolor="white")
+    ax.axvline(media, color="red", linestyle="--",
+               label=f"Média: {media:.2f}")
+    ax.axvline(mediana, color="orange", linestyle="--",
+               label=f"Mediana: {mediana:.2f}")
+    ax.set_title("Distribuição do valor das vendas")
+    ax.set_xlabel("Valor total da venda")
+    ax.set_ylabel("Número de vendas")
+    ax.legend()
+    plt.tight_layout()
+    fig.savefig(PASTA_RESULTADOS / "p6_valor_medio_vendas.png", dpi=150)
+    plt.close(fig)
+    return media
+
+
+# ---------- PERGUNTA 7: MAIOR VENDA REGISTRADA ----------
+def pergunta_7(df):
+    print("\n=== PERGUNTA 7: Qual foi a maior venda registrada? ===")
+    # HIPÓTESE (troque por uma frase sua): a maior venda tem a quantidade
+    # máxima (10 unidades) e um preço unitário alto.
+    # idxmax devolve a posição da linha com o maior valor_total
+    maior = df.loc[df["valor_total"].idxmax()]
+    print(maior[["id_venda", "Filial", "linha_produto", "Quantidade",
+                 "preco_unitario", "valor_total", "data_venda"]])
+
+    # Confere se há empate no valor máximo
+    empates = (df["valor_total"] == df["valor_total"].max()).sum()
+    print(f"Vendas com esse valor máximo: {empates}")
+
+    # Gráfico das 10 maiores vendas
+    top10 = (df.nlargest(10, "valor_total")
+             .set_index("id_venda")["valor_total"])
+    grafico_barras(top10, "As 10 maiores vendas", "ID da venda",
+                   "Valor total", "p7_maiores_vendas.png")
+    return maior
+
+
+# ---------- PERGUNTA 8: DIA DA SEMANA COM MAIS VENDAS ----------
+ORDEM_DIAS = ["segunda-feira", "terça-feira", "quarta-feira",
+              "quinta-feira", "sexta-feira", "sábado", "domingo"]
+
+
+def pergunta_8(df):
+    print("\n=== PERGUNTA 8: Em qual dia da semana há mais vendas? ===")
+    # HIPÓTESE (troque por uma frase sua): o fim de semana
+    # concentra mais vendas.
+    # reindex coloca os dias na ordem da semana, de segunda a domingo
+    por_dia = df["dia_semana"].value_counts().reindex(ORDEM_DIAS)
+    print(por_dia)
+    print(f"Dia com mais vendas: {por_dia.idxmax()} ({por_dia.max()} vendas)")
+
+    grafico_barras(por_dia, "Vendas por dia da semana", "Dia da semana",
+                   "Número de vendas", "p8_vendas_dia_semana.png")
+    return por_dia
+
+
+# ---------- SALVAR AS RESPOSTAS EM TEXTO ----------
+def salvar_respostas(fat_filial, qtd_filial, fat_linha, aval_linha,
+                     pagamentos, media, maior, por_dia):
+    linhas = [
+        "RESPOSTAS ÀS PERGUNTAS DE NEGÓCIO",
+        "",
+        f"1. Maior faturamento: {fat_filial.idxmax()} "
+        f"({fat_filial.max():.2f})",
+        f"2. Mais vendas: {qtd_filial.idxmax()} ({qtd_filial.max()} vendas)",
+        f"3. Linha com maior faturamento: {fat_linha.idxmax()} "
+        f"({fat_linha.max():.2f})",
+        f"4. Melhor avaliação média: {aval_linha.idxmax()} "
+        f"({aval_linha.max():.2f})",
+        f"5. Forma de pagamento mais usada: {pagamentos.idxmax()} "
+        f"({pagamentos.max()} vendas)",
+        f"6. Valor médio das vendas: {media:.2f}",
+        f"7. Maior venda: {maior['id_venda']} "
+        f"({maior['valor_total']:.2f}, filial {maior['Filial']})",
+        f"8. Dia com mais vendas: {por_dia.idxmax()} "
+        f"({por_dia.max()} vendas)",
+    ]
+    caminho = PASTA_RESULTADOS / "respostas_negocio.txt"
+    caminho.write_text("\n".join(linhas), encoding="utf-8")
+    print(f"\nRespostas salvas em: {caminho}")
+
+
 # ---------- EXECUÇÃO ----------
 if __name__ == "__main__":
     # Garante que a pasta resultados/ existe
@@ -115,7 +224,15 @@ if __name__ == "__main__":
 
     dados = carregar_dados(CAMINHO_ENTRADA)
     conferir_categorias(dados)
-    pergunta_1(dados)
-    pergunta_2(dados)
-    pergunta_3(dados)
-    pergunta_4(dados)
+
+    fat_filial = pergunta_1(dados)
+    qtd_filial = pergunta_2(dados)
+    fat_linha = pergunta_3(dados)
+    aval_linha = pergunta_4(dados)
+    pagamentos = pergunta_5(dados)
+    media = pergunta_6(dados)
+    maior = pergunta_7(dados)
+    por_dia = pergunta_8(dados)
+
+    salvar_respostas(fat_filial, qtd_filial, fat_linha, aval_linha,
+                     pagamentos, media, maior, por_dia)
