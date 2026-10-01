@@ -86,3 +86,27 @@ CREATE TABLE IF NOT EXISTS vendas_tratadas (
 -- Correção após a importação: o cabeçalho do CSV entrou como linha de dados
 -- (opção Header desligada). Removida a linha para a Raw ficar com as 1000 vendas.
 -- DELETE FROM raw_vendas WHERE branch = 'Branch';
+
+
+-- ============================================================
+-- CHECKs das categorias (regras de negócio do domínio)
+-- Valores conferidos no CSV tratado com unique() no Pandas.
+-- Como a tabela já existia, usamos ALTER TABLE para adicionar.
+-- ============================================================
+ALTER TABLE vendas_tratadas
+    ADD CONSTRAINT ck_filial
+    CHECK ("Filial" IN ('Alex', 'Giza', 'Cairo'));
+
+ALTER TABLE vendas_tratadas
+    ADD CONSTRAINT ck_tipo_cliente
+    CHECK (tipo_cliente IN ('Member', 'Normal'));
+
+ALTER TABLE vendas_tratadas
+    ADD CONSTRAINT ck_forma_pagamento
+    CHECK (forma_pagamento IN ('Cash', 'Credit card', 'Ewallet'));
+
+ALTER TABLE vendas_tratadas
+    ADD CONSTRAINT ck_linha_produto
+    CHECK (linha_produto IN ('Health and beauty', 'Electronic accessories',
+                             'Home and lifestyle', 'Sports and travel',
+                             'Food and beverages', 'Fashion accessories'));
