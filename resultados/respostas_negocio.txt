@@ -1,0 +1,10 @@
+RESPOSTAS ÀS PERGUNTAS DE NEGÓCIO
+
+1. Maior faturamento: Giza (110568.71)
+2. Mais vendas: Alex (340 vendas)
+3. Linha com maior faturamento: Food and beverages (56144.86)
+4. Melhor avaliação média: Food and beverages (7.11)
+5. Forma de pagamento mais usada: Ewallet (345 vendas)
+6. Valor médio das vendas: 322.97
+7. Maior venda: 860-79-0874 (1042.65, filial Giza)
+8. Dia com mais vendas: sábado (164 vendas)
