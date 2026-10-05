@@ -1,6 +1,6 @@
 -- Consultas SQL fundamentais sobre a camada Raw (raw_vendas)
 -- Executar no banco vendas_supermercado, UMA consulta por vez
--- As colunas da Raw são TEXT, então usamos CAST para fazer contas
+-- As colunas da Raw são TEXT, então foi utilizado CAST para fazer contas
 
 -- 1. Faturamento por filial (maior primeiro)
 SELECT branch AS filial,
@@ -49,7 +49,6 @@ ORDER BY CAST(sales AS NUMERIC) DESC
 LIMIT 1;
 
 -- 8. Quantidade de vendas por dia da semana
--- A data vem no formato americano (mês/dia/ano), por isso o formato MM/DD/YYYY
 SELECT TO_CHAR(TO_DATE(sale_date, 'MM/DD/YYYY'), 'FMDay') AS dia_semana,
        COUNT(*) AS qtd_vendas
 FROM raw_vendas
@@ -63,15 +62,3 @@ WHERE CAST(sales AS NUMERIC) > 500
 ORDER BY CAST(sales AS NUMERIC) DESC;
 
 
--- ============================================================
--- EXPORTAÇÃO PARA CSV (Fase 2)
--- A tabela raw_vendas foi exportada pelo pgAdmin:
---   Query Tool > executar a consulta abaixo > botão "Save results to file"
---   formato csv, delimitador ",", com cabeçalho
---   arquivo: data/raw/raw_vendas_exportada.csv
---
--- Alternativa pelo psql (comando do psql, não SQL comum):
--- \copy (SELECT * FROM raw_vendas) TO 'data/raw/raw_vendas_exportada.csv' WITH (FORMAT csv, HEADER true)
---
--- SELECT * FROM raw_vendas;
--- ============================================================

@@ -2,59 +2,52 @@
 # Entrada: data/processed/vendas_tratadas.csv
 # Saída: gráficos em resultados/
 
-# ---------- BIBLIOTECAS ----------
+
 from pathlib import Path  # trabalhar com caminhos de pastas
 
 import matplotlib.pyplot as plt  # biblioteca para fazer gráficos
 import pandas as pd  # biblioteca principal para tabelas de dados
 
-# ---------- CONFIGURAÇÕES ----------
+
 CAMINHO_ENTRADA = Path("data/processed/vendas_tratadas.csv")
 PASTA_RESULTADOS = Path("resultados")
 
 
-# ---------- FUNÇÃO: LER O ARQUIVO ----------
+
 def carregar_dados(caminho):
-    # parse_dates faz o pandas entender data_venda como data
     return pd.read_csv(caminho, parse_dates=["data_venda"])
 
 
-# ---------- FUNÇÃO: CONFERIR CATEGORIAS ----------
+
 def conferir_categorias(df):
-    # Mostra todos os valores que existem em cada coluna de categoria
-    # (serve para conferir o dicionário de dados e os CHECKs do SQL)
     for coluna in ["Filial", "Cidade", "tipo_cliente", "Gênero",
                    "forma_pagamento", "linha_produto"]:
         print(f"\n=== {coluna} ===")
         print(df[coluna].value_counts())
 
 
-# ---------- FUNÇÃO: GRÁFICO DE BARRAS ----------
+
 def grafico_barras(serie, titulo, rotulo_x, rotulo_y, nome_arquivo):
-    # Cria a figura e desenha as barras a partir da série (índice = eixo x)
     fig, ax = plt.subplots(figsize=(9, 5))
     serie.plot(kind="bar", ax=ax, color="steelblue")
 
-    # Título e nomes dos eixos
     ax.set_title(titulo)
     ax.set_xlabel(rotulo_x)
     ax.set_ylabel(rotulo_y)
 
-    # Inclina os nomes do eixo x para não ficarem amontoados
     plt.xticks(rotation=30, ha="right")
     plt.tight_layout()
 
-    # Salva em resultados/ e fecha a figura
+    
     fig.savefig(PASTA_RESULTADOS / nome_arquivo, dpi=150)
     plt.close(fig)
 
 
-# ---------- PERGUNTA 1: FILIAL COM MAIOR FATURAMENTO ----------
+# PERGUNTA 1: FILIAL COM MAIOR FATURAMENTO 
 def pergunta_1(df):
     print("\n=== PERGUNTA 1: Qual filial apresentou o maior faturamento? ===")
-    # HIPÓTESE (troque por uma frase sua): a filial com mais vendas
-    # deve ser também a de maior faturamento.
-    # Faturamento = soma de valor_total (receita_bruta aqui é o lucro)
+    # HIPÓTESE: A filial que realiza mais vendas também deve ser a que apresenta o maior faturamento
+    # Faturamento = soma de valor_total 
     faturamento = (df.groupby("Filial")["valor_total"].sum()
                    .sort_values(ascending=False))
     print(faturamento.round(2))
@@ -64,12 +57,10 @@ def pergunta_1(df):
     return faturamento
 
 
-# ---------- PERGUNTA 2: FILIAL COM MAIS VENDAS ----------
+# PERGUNTA 2: FILIAL COM MAIS VENDAS 
 def pergunta_2(df):
     print("\n=== PERGUNTA 2: Qual filial realizou mais vendas? ===")
-    # HIPÓTESE (troque por uma frase sua): as filiais têm quantidades
-    # de vendas parecidas.
-    # Cada linha da tabela é uma venda, então contamos as linhas por filial
+    # HIPÓTESE: As filiais têm quantidades de vendas parecidas
     quantidade = df["Filial"].value_counts()
     print(quantidade)
 
@@ -78,11 +69,10 @@ def pergunta_2(df):
     return quantidade
 
 
-# ---------- PERGUNTA 3: LINHA DE PRODUTO COM MAIOR FATURAMENTO ----------
+# PERGUNTA 3: LINHA DE PRODUTO COM MAIOR FATURAMENTO 
 def pergunta_3(df):
     print("\n=== PERGUNTA 3: Qual linha de produto faturou mais? ===")
-    # HIPÓTESE (troque por uma frase sua): a linha com mais vendas
-    # é a de maior faturamento.
+    # HIPÓTESE: A linha com mais vendas é a de maior faturamento.
     faturamento = (df.groupby("linha_produto")["valor_total"].sum()
                    .sort_values(ascending=False))
     print(faturamento.round(2))
@@ -93,11 +83,10 @@ def pergunta_3(df):
     return faturamento
 
 
-# ---------- PERGUNTA 4: LINHA DE PRODUTO COM MELHOR AVALIAÇÃO ----------
+# PERGUNTA 4: LINHA DE PRODUTO COM MELHOR AVALIAÇÃO 
 def pergunta_4(df):
     print("\n=== PERGUNTA 4: Qual linha tem a melhor avaliação média? ===")
-    # HIPÓTESE (troque por uma frase sua): as avaliações médias são
-    # parecidas entre as linhas.
+    # HIPÓTESE: As avaliações médias devem ficar próximas entre as diferentes linhas de produto.
     media = (df.groupby("linha_produto")["Avaliação"].mean()
              .sort_values(ascending=False))
     print(media.round(2))
@@ -108,11 +97,10 @@ def pergunta_4(df):
     return media
 
 
-# ---------- PERGUNTA 5: FORMA DE PAGAMENTO MAIS USADA ----------
+# PERGUNTA 5: FORMA DE PAGAMENTO MAIS USADA 
 def pergunta_5(df):
     print("\n=== PERGUNTA 5: Qual a forma de pagamento mais usada? ===")
-    # HIPÓTESE (troque por uma frase sua): o cartão de crédito
-    # é a forma de pagamento mais usada.
+    # HIPÓTESE: O cartão de crédito é uma das formas de pagamento mais usada.
     pagamentos = df["forma_pagamento"].value_counts()
     print(pagamentos)
 
@@ -122,18 +110,17 @@ def pergunta_5(df):
     return pagamentos
 
 
-# ---------- PERGUNTA 6: VALOR MÉDIO DAS VENDAS ----------
+# PERGUNTA 6: VALOR MÉDIO DAS VENDAS 
 def pergunta_6(df):
     print("\n=== PERGUNTA 6: Qual o valor médio das vendas? ===")
-    # HIPÓTESE (troque por uma frase sua): a média fica acima da mediana,
-    # porque poucas vendas muito grandes puxam a média para cima.
+    # HIPÓTESE: A média fica acima da mediana, porque poucas vendas de alto valor puxam a média para cima.
     media = df["valor_total"].mean()
     mediana = df["valor_total"].median()
     print(f"Valor médio: {media:.2f}")
     print(f"Mediana: {mediana:.2f}")
     print(df["valor_total"].describe().round(2))
 
-    # Histograma: mostra como os valores das vendas se distribuem
+    #Histograma
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.hist(df["valor_total"], bins=20, color="steelblue", edgecolor="white")
     ax.axvline(media, color="red", linestyle="--",
@@ -150,17 +137,16 @@ def pergunta_6(df):
     return media
 
 
-# ---------- PERGUNTA 7: MAIOR VENDA REGISTRADA ----------
+# PERGUNTA 7: MAIOR VENDA REGISTRADA 
 def pergunta_7(df):
     print("\n=== PERGUNTA 7: Qual foi a maior venda registrada? ===")
-    # HIPÓTESE (troque por uma frase sua): a maior venda tem a quantidade
-    # máxima (10 unidades) e um preço unitário alto.
+    # HIPÓTESE: A maior venda tem a quantidade máxima e um preço unitário alto.
     # idxmax devolve a posição da linha com o maior valor_total
     maior = df.loc[df["valor_total"].idxmax()]
     print(maior[["id_venda", "Filial", "linha_produto", "Quantidade",
                  "preco_unitario", "valor_total", "data_venda"]])
 
-    # Confere se há empate no valor máximo
+    # Conferência de empates: quantas vendas têm o mesmo valor máximo
     empates = (df["valor_total"] == df["valor_total"].max()).sum()
     print(f"Vendas com esse valor máximo: {empates}")
 
@@ -172,16 +158,14 @@ def pergunta_7(df):
     return maior
 
 
-# ---------- PERGUNTA 8: DIA DA SEMANA COM MAIS VENDAS ----------
+#  PERGUNTA 8: DIA DA SEMANA COM MAIS VENDAS 
 ORDEM_DIAS = ["segunda-feira", "terça-feira", "quarta-feira",
               "quinta-feira", "sexta-feira", "sábado", "domingo"]
 
 
 def pergunta_8(df):
     print("\n=== PERGUNTA 8: Em qual dia da semana há mais vendas? ===")
-    # HIPÓTESE (troque por uma frase sua): o fim de semana
-    # concentra mais vendas.
-    # reindex coloca os dias na ordem da semana, de segunda a domingo
+    # HIPÓTESE: O fim de semana concentra mais vendas
     por_dia = df["dia_semana"].value_counts().reindex(ORDEM_DIAS)
     print(por_dia)
     print(f"Dia com mais vendas: {por_dia.idxmax()} ({por_dia.max()} vendas)")
@@ -191,7 +175,7 @@ def pergunta_8(df):
     return por_dia
 
 
-# ---------- SALVAR AS RESPOSTAS EM TEXTO ----------
+# SALVAR AS RESPOSTAS EM TEXTO
 def salvar_respostas(fat_filial, qtd_filial, fat_linha, aval_linha,
                      pagamentos, media, maior, por_dia):
     linhas = [
@@ -217,9 +201,8 @@ def salvar_respostas(fat_filial, qtd_filial, fat_linha, aval_linha,
     print(f"\nRespostas salvas em: {caminho}")
 
 
-# ---------- EXECUÇÃO ----------
+# EXECUÇÃO 
 if __name__ == "__main__":
-    # Garante que a pasta resultados/ existe
     PASTA_RESULTADOS.mkdir(parents=True, exist_ok=True)
 
     dados = carregar_dados(CAMINHO_ENTRADA)

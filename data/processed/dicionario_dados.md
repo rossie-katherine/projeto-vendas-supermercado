@@ -3,7 +3,7 @@
 Arquivo: `data/processed/vendas_tratadas.csv` (1000 linhas, 20 colunas).
 Gerado por `src/02_etl_vendas.py` a partir de `data/raw/raw_vendas_exportada.csv`.
 
-## Colunas originais (17)
+# Colunas originais (17)
 
 | Coluna | Tipo | Restrições | Descrição |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Gerado por `src/02_etl_vendas.py` a partir de `data/raw/raw_vendas_exportada.csv
 | receita_bruta | NUMERIC(12,2) | CHECK >= 0 | Renda bruta da venda, que neste dataset coincide com o imposto (gross income) |
 | Avaliação | NUMERIC(4,2) | CHECK entre 0 e 10 | Nota dada pelo cliente (Rating) |
 
-## Colunas derivadas (3)
+# Colunas derivadas (3)
 
 | Coluna | Tipo | Restrições | Descrição |
 |---|---|---|---|
@@ -33,9 +33,9 @@ Gerado por `src/02_etl_vendas.py` a partir de `data/raw/raw_vendas_exportada.csv
 | mes | INTEGER | | Mês da venda, de 1 a 12, calculado a partir de data_venda |
 | hora_do_dia | INTEGER | | Hora cheia da venda, de 0 a 23, calculada a partir de hora_venda |
 
-## Decisões de tratamento
+# Decisões de tratamento
 
-- Base sem nulos e sem duplicados: o ETL verificou e nenhuma linha foi removida.
-- Nenhuma linha violou as regras de negócio (valores negativos, quantidade <= 0, avaliação fora de 0 a 10).
-- Valores monetários arredondados para 2 casas decimais.
-- Formato do arquivo: CSV separado por vírgula, codificação UTF-8.
+- **Base sem nulos e duplicados:** o ETL verificou esses casos e nenhuma linha precisou ser removida.
+- **Regras de negócio:** não foram encontradas linhas com valores negativos, quantidade menor ou igual a zero ou avaliações fora da escala de 0 a 10.
+- **Valores monetários:** arredondados para 2 casas decimais durante o tratamento.
+- **Formato dos dados:** arquivo CSV separado por vírgula e codificado em UTF-8.

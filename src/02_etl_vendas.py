@@ -2,16 +2,16 @@
 # Entrada: data/raw/raw_vendas_exportada.csv
 # Saída: data/processed/vendas_tratadas.csv
 
-# ---------- BIBLIOTECAS ----------
+
 from pathlib import Path  # trabalhar com caminhos de pastas
 
 import pandas as pd  # biblioteca principal para tabelas de dados
 
-# ---------- CONFIGURAÇÕES ----------
+
 CAMINHO_ENTRADA = Path("data/raw/raw_vendas_exportada.csv")
 CAMINHO_SAIDA = Path("data/processed/vendas_tratadas.csv")
 
-# Tradução dos nomes do CSV (inglês) para os nomes do dicionário de dados
+# Tradução dos nomes do CSV para os nomes do dicionário de dados
 COLUNAS = {
     "invoice_id": "id_venda",
     "branch": "Filial",
@@ -33,33 +33,32 @@ COLUNAS = {
 }
 
 
-# ---------- FUNÇÃO 1: LER O ARQUIVO ----------
+# LER O ARQUIVO 
 def carregar_dados(caminho):
     # Lê o CSV exportado do banco e devolve um DataFrame
     return pd.read_csv(caminho)
 
 
-# ---------- FUNÇÃO 2: RENOMEAR COLUNAS ----------
+# RENOMEAR COLUNAS
 def renomear_colunas(df):
     # rename troca os nomes usando o dicionário COLUNAS
     return df.rename(columns=COLUNAS)
 
 
-# ---------- FUNÇÃO 3: CONVERTER TIPOS (CASTING) ----------
+# CONVERTER TIPOS (CASTING) 
 def converter_tipos(df):
-    # Trabalha numa cópia para não mexer no DataFrame original
     df = df.copy()
 
-    # Colunas de texto: tira espaços sobrando no começo e no fim
+    # Tira espaços sobrando no começo e no fim das colunas de texto
     colunas_texto = ["id_venda", "Filial", "Cidade", "tipo_cliente",
                      "Gênero", "linha_produto", "forma_pagamento"]
     for coluna in colunas_texto:
         df[coluna] = df[coluna].str.strip()
 
-    # Data: formato americano, mês/dia/ano (ex.: 1/5/2019 = 5 de janeiro)
+    # Data: formato americano
     df["data_venda"] = pd.to_datetime(df["data_venda"], format="%m/%d/%Y")
 
-    # Hora: formato de 12 horas com AM/PM (ex.: 1:08:00 PM)
+    # Hora: formato de 12 horas com AM/PM 
     df["hora_venda"] = pd.to_datetime(
         df["hora_venda"], format="%I:%M:%S %p"
     ).dt.time
@@ -75,7 +74,7 @@ def converter_tipos(df):
     return df
 
 
-# ---------- FUNÇÃO 4: NULOS E DUPLICADOS ----------
+# NULOS E DUPLICADOS 
 def tratar_nulos_e_duplicados(df):
     # Mostra quantos nulos existem em cada coluna
     print("=== NULOS POR COLUNA ===")
@@ -83,8 +82,7 @@ def tratar_nulos_e_duplicados(df):
 
     linhas_antes = len(df)
 
-    # Campos críticos: sem eles a venda não serve para análise.
-    # Decisão: se algum estiver vazio, a linha é removida.
+    # Campos críticos: se algum estiver vazio, a linha é removida
     colunas_criticas = ["id_venda", "Filial", "Cidade", "linha_produto",
                         "preco_unitario", "Quantidade", "valor_total",
                         "data_venda", "forma_pagamento"]
@@ -97,12 +95,12 @@ def tratar_nulos_e_duplicados(df):
     return df
 
 
-# ---------- FUNÇÃO 5: CONFERIR O VALOR TOTAL ----------
+# CONFERIR O VALOR TOTAL 
 def conferir_valor_total(df):
-    # Regra do dataset: valor_total = preço x quantidade + imposto
+    # valor_total = preço x quantidade + imposto
     esperado = df["preco_unitario"] * df["Quantidade"] + df["Imposto"]
 
-    # Diferença em valor absoluto (aceita até 1 centavo de arredondamento)
+    
     diferenca = (df["valor_total"] - esperado).abs()
     divergentes = (diferenca > 0.01).sum()
 
@@ -110,7 +108,7 @@ def conferir_valor_total(df):
     return df
 
 
-# ---------- FUNÇÃO 6: CASOS LIMÍTROFES ----------
+# CASOS LIMÍTROFES 
 def tratar_casos_limitrofes(df):
     # Regras de negócio do dicionário de dados
     valido = (
@@ -123,32 +121,32 @@ def tratar_casos_limitrofes(df):
         & (df["Avaliação"].between(0, 10))
     )
 
-    # ~valido significa "o contrário de valido"
+    # ~valido significa "o contrário de válido"
     print(f"Linhas fora das regras de negócio: {(~valido).sum()}")
 
-    # Mantém só as linhas que respeitam as regras
+    
     return df[valido]
 
 
-# ---------- FUNÇÃO 7: COLUNAS DERIVADAS ----------
+# COLUNAS DERIVADAS 
 def criar_colunas_derivadas(df):
     df = df.copy()
 
-    # Dia da semana em português (0 = segunda-feira ... 6 = domingo)
+    # Dia da semana em português 
     dias = {0: "segunda-feira", 1: "terça-feira", 2: "quarta-feira",
             3: "quinta-feira", 4: "sexta-feira", 5: "sábado", 6: "domingo"}
     df["dia_semana"] = df["data_venda"].dt.dayofweek.map(dias)
 
-    # Mês da venda (número de 1 a 12)
+    # Mês da venda 
     df["mes"] = df["data_venda"].dt.month
 
-    # Hora cheia da venda (número de 0 a 23), tirada da coluna hora_venda
+    # Hora cheia da venda 
     df["hora_do_dia"] = df["hora_venda"].apply(lambda h: h.hour)
 
     return df
 
 
-# ---------- FUNÇÃO 8: ARREDONDAR ----------
+# ARREDONDAR 
 def arredondar_valores(df):
     # O banco e o dicionário usam 2 casas decimais
     colunas = ["preco_unitario", "Imposto", "valor_total",
@@ -158,9 +156,8 @@ def arredondar_valores(df):
     return df
 
 
-# ---------- FUNÇÃO 9: SALVAR ----------
+# SALVAR 
 def salvar_dados(df, caminho):
-    # Garante que data/processed existe
     caminho.parent.mkdir(parents=True, exist_ok=True)
 
     # index=False evita gravar a coluna de números da esquerda
@@ -168,7 +165,7 @@ def salvar_dados(df, caminho):
     print(f"Arquivo salvo em: {caminho} ({len(df)} linhas)")
 
 
-# ---------- EXECUÇÃO ----------
+# EXECUÇÃO 
 if __name__ == "__main__":
     dados = carregar_dados(CAMINHO_ENTRADA)
     dados = renomear_colunas(dados)
@@ -180,6 +177,6 @@ if __name__ == "__main__":
     dados = arredondar_valores(dados)
     salvar_dados(dados, CAMINHO_SAIDA)
 
-    # Mostra os tipos e as primeiras linhas para conferir
+    # Tipos e as primeiras linhas para conferir
     dados.info()
     print(dados.head())

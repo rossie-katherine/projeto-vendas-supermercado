@@ -1,13 +1,10 @@
--- Cria as duas tabelas do projeto: raw_vendas (bruta) e vendas_tratadas (tratada)
--- Este script deve ser executado DENTRO do banco vendas_supermercado
 
--- ============================================================
 -- TABELA 1: raw_vendas (camada Raw)
 -- Cópia fiel do CSV. Todas as colunas são TEXT para nada se
 -- perder na importação. Sem restrições de propósito: a limpeza
 -- e a tipagem acontecem depois, no Python.
 -- A ordem das colunas é a mesma do CSV (17 colunas).
--- ============================================================
+
 CREATE TABLE IF NOT EXISTS raw_vendas (
     invoice_id              TEXT,  -- Invoice ID
     branch                  TEXT,  -- Branch
@@ -28,12 +25,10 @@ CREATE TABLE IF NOT EXISTS raw_vendas (
     rating                  TEXT   -- Rating
 );
 
--- ============================================================
+
 -- TABELA 2: vendas_tratadas (camada Tratada)
 -- Segue o dicionário de dados do enunciado (seção 6).
--- Nomes com maiúscula ou acento precisam de aspas duplas,
--- por exemplo "Filial" e "Avaliação".
--- ============================================================
+
 CREATE TABLE IF NOT EXISTS vendas_tratadas (
     -- Chave primária: identifica cada venda de forma única
     id_venda          VARCHAR(50)    PRIMARY KEY,
@@ -65,34 +60,16 @@ CREATE TABLE IF NOT EXISTS vendas_tratadas (
 );
 
 
--- ============================================================
--- CARGA DA RAW (Fase 1)
--- Os dados foram importados pelo pgAdmin:
---   botão direito em raw_vendas > Import/Export Data
---   Import, formato csv, Header ligado, delimitador ","
---   arquivo: data/raw/SuperMarket Analysis.csv
---
--- Alternativa pelo psql (rodar na pasta do projeto, conectado
--- ao banco vendas_supermercado). Fica comentado porque \copy
--- é comando do psql, não SQL comum:
---
--- \copy raw_vendas FROM 'data/raw/SuperMarket Analysis.csv' WITH (FORMAT csv, HEADER true, DELIMITER ',')
---
--- Conferência: deve retornar 1000 linhas
--- SELECT COUNT(*) FROM raw_vendas;
--- ============================================================
-
 
 -- Correção após a importação: o cabeçalho do CSV entrou como linha de dados
 -- (opção Header desligada). Removida a linha para a Raw ficar com as 1000 vendas.
 -- DELETE FROM raw_vendas WHERE branch = 'Branch';
 
 
--- ============================================================
 -- CHECKs das categorias (regras de negócio do domínio)
 -- Valores conferidos no CSV tratado com unique() no Pandas.
--- Como a tabela já existia, usamos ALTER TABLE para adicionar.
--- ============================================================
+-- Como a tabela já existia, foi utilizado ALTER TABLE para adicionar.
+
 ALTER TABLE vendas_tratadas
     ADD CONSTRAINT ck_filial
     CHECK ("Filial" IN ('Alex', 'Giza', 'Cairo'));
